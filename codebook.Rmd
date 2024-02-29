@@ -1,0 +1,712 @@
+---
+title: "Codebook"
+author: "Christopher Trzaska"
+date: "2024-02-28"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  eval = TRUE,
+  fig.align = 'center',
+  message = FALSE,
+  warning = FALSE,
+  library(tidyverse),
+  library(knitr))
+  library(dplyr)
+```
+
+```{r}
+mlb_teams <- read.csv("mlb_teams.csv")
+```
+
+***Overview of Data***
+
+
+
+The original raw dataset was compiled by Sean Lahman, an author and journalist with a passion for baseball. Mr. Lahman has co-authored editions of 5 sports encyclopedias in addition to writing several books on the use of statistical analysis in sports. Mr. Lahman compiled this dataset using open source research methods to provide a comprehensive look at the history of Major League Baseball and how the game has changed since its modern inception in 1876. The data set provides a list of important baseball statistics for every team's season since 1876. Baseball is notorious for its emphasis (and some might say overemphasis) on statistics. Due to the slow and deliberate pace of play and low scoring, very small changes in a team's offensive or defensive statistics can mean the difference between a World Series trip and an early elimination. This dataset initially covered a wide array of basic offensive, defensive, and season performance statistics (total runs scored, number of home runs hit, number of errors committed, etc). However it did not account for some of the newer statistics that dominate the modern game. For example, Mr. Lahman was remarkable in his ability to determine the number of hits, runs, strikeouts, and stolen bases for each team. However, more advanced statistics like batting average, on base percentage, slugging percentage, and OPS were omitted. In wrangling this data, I wanted to produce a dataset that focused primarily on teams' offensive statistics and use the basic data provided to create the more advanced statistics that are relevant to today's iteration of the sport of baseball. Doing so will provide the opportunity to analyze how individual teams improved over time as well as how the quality of MLB offenses as a whole have changed in the past 150 years.
+
+
+
+
+
+
+***Sources and Methodology***
+
+Sean Lahman curated the original dataset by conducting an open source research effort to compile a the history of baseball statistics. This dataset is part of a larger effort started in 1995 by Mr. Lahman to curate and disseminate raw baseball data called "the Baseball Archive". This larger effort seeks to gather data on every single MLB player who ever played a sanctioned professional baseball games in the major leagues. To support this project, Mr. Lahman looked to Major League Baseball's hall of fame in Cooperstown, NY, which provides significant archival records of historical MLB teams in addition to information on more recent years. Additionally, public websites such as baseballreference.com (which Mr. Lahman's first online baseball encyclopedia helped inspre) and mlb.com provide in depth information regarding individual and team statistics. Mr. Lahman utilized a combination of these open source data sources in the creation of this set. I have included the link to the original dataset here: https://www.openintro.org/data/index.php?data=mlb_teams
+
+
+
+
+
+***Note on Missing Values***
+
+For some variabes, Mr. Lahaman was unable to find data for that time frame. In some cases, this is because recordkeeping in the early days of baseball for stats beyond basic run, hit, and out totals was limited. In other cases, the structure of the league changed which altered how seasons were conducted. For example, initially Major League Baseball consisted of just 8 teams playing a series of sanctioned games with no final championship. As the league expanded and new teams were created, the league was divided into sub-leagues and divisions that offered the chance for teams to win a smaller title to advance to the playoffs and compete for the "World Championship". Thus, there is no information about who won a given division before that division was created. All values in the dataset where there is no availible information are left blank and marked with NA. 
+
+
+
+
+
+
+***Itemized Presentation of Variables***
+
+
+
+**Variable name** : ***year***
+
+**Variable type** : character 
+
+**Description**: Year of play of team being observed.
+
+
+
+
+
+
+**Variable name** : ***team_name***
+
+**Variable type** : character 
+
+**Description**: Name of team being observed. 
+
+
+
+
+
+**Variable name** : ***ball_park***
+
+**Variable type** : character 
+
+**Description**: Name of home stadium where team observed played that year.
+
+
+
+
+
+
+**Variable name** : ***league_id***
+
+**Variable type** : factor 
+
+**Description**: Name of sub-league the team observed competed in. Options are either NL (National League) or AL (American League)
+```{R}
+league_id_freq <- table(mlb_teams$league_id)
+kable(league_id_freq)
+```
+
+
+
+
+
+**Variable name** : ***division_id***
+
+**Variable type** : factor
+
+**Description**: Name of sub-division of the sub-league the team observed competed in. Options are either E (East), C (Central), W (West). Divisions were created in 1969. 
+```{R}
+division_id_freq <- table(mlb_teams$division_id)
+kable(division_id_freq)
+```
+
+
+
+
+
+**Variable name** : ***games_played***
+
+**Variable type** : numerical
+
+**Description**: Total number of games the observed team played during that year's season.
+```{R}
+games_summary = mlb_teams %>%
+  summarise(
+    mean = mean(games_played, na.rm = TRUE),
+    median = median(games_played, na.rm = TRUE),
+    min = min(games_played, na.rm = TRUE),
+    max = max(games_played, na.rm = TRUE))
+kable(games_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***wins***
+
+**Variable type** : numeric
+
+**Description**: How many total games the observed team won during the regular season.
+```{r}
+wins_summary = mlb_teams %>%
+  summarise(
+    mean = mean(wins, na.rm = TRUE),
+    median = median(wins, na.rm = TRUE),
+    min = min(wins, na.rm = TRUE),
+    max = max(wins, na.rm = TRUE))
+kable(games_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***winning_per***
+
+**Variable type** : numeric
+
+**Description**: What percentage of total regular season games the observed team won.
+```{r}
+win_per_summary = mlb_teams %>%
+  summarise(
+    mean = mean(winning_per, na.rm = TRUE),
+    median = median(winning_per, na.rm = TRUE),
+    min = min(winning_per, na.rm = TRUE),
+    max = max(winning_per, na.rm = TRUE))
+kable(win_per_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***wild_card_winner***
+
+**Variable type** : factor
+
+**Description**: Was the team able to secure a playoff spot via the wild card. Starting in 2012, the two highest seeded teams that did not win their respective divisions were granted a playoff berth via the wild card as a way to expand the playoff format. That number was later increased to the top 3 teams starting in 2022. Options are either Y (Yes) or N (No)
+```{R}
+wild_card_freq <- table(mlb_teams$wild_card_winner)
+kable(wild_card_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***division_winner***
+
+**Variable type** : factor
+
+**Description**: Whether the observed team won their respective division. MLB was reorganized into the divisional framework in 1969. Each MLB team was placed into either the American League or National League and then assigned a geographical-based division. The team with the best regular season record at the end of the season wins their division and is granted a playoff berth. Options are Y (Yes) team won division or N (No) they didnt.
+```{R}
+division_freq <- table(mlb_teams$division_winner)
+kable(division_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***league_winner***
+
+**Variable type** : factor
+
+**Description**: Whether the observed team won their league. MLB teams are divided into 2 leagues, American and National. The winner of the league is determined by which team wins the League Championship Series. The winner of each league has advanced to the "World Series" since 1903 to determine the MLB champion for that year. Options are either Y (Yes) team won their respective league or N (No) they did not. 
+```{R}
+league_freq <- table(mlb_teams$league_winner)
+kable(league_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***world_series_winner***
+
+**Variable type** : factor
+
+**Description**: Whether the observed team won the World Series for that year. Since 1903, the winners of the American and National leagues have competed for the World Series title to be crowned champions of Major League Baseball. Options are Y (Yes) team won the World Series that year or N (No) they did not. 
+```{R}
+world_series_freq <- table(mlb_teams$world_series_winner)
+kable(world_series_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***runs_scored***
+
+**Variable type** : numeric
+
+**Description**: How many total runs the observed team scored during the regular season.
+```{r}
+runs_summary = mlb_teams %>%
+  summarise(
+    mean = mean(runs_scored, na.rm = TRUE),
+    median = median(runs_scored, na.rm = TRUE),
+    min = min(runs_scored, na.rm = TRUE),
+    max = max(runs_scored, na.rm = TRUE))
+kable(runs_summary)
+```
+
+
+
+
+
+**Variable name** : ***at_bats***
+
+**Variable type** : numeric
+
+**Description**: How many total times an offensive player stepped into the batter's box to face a pitch during the regular season. 
+```{r}
+abs_summary = mlb_teams %>%
+  summarise(
+    mean = mean(at_bats, na.rm = TRUE),
+    median = median(at_bats, na.rm = TRUE),
+    min = min(at_bats, na.rm = TRUE),
+    max = max(at_bats, na.rm = TRUE))
+kable(abs_summary)
+```
+
+
+
+
+
+**Variable name** : ***hits***
+
+**Variable type** : numeric
+
+**Description**: How many total hits the observed team achieved during the regular season. A hit is any time a batter safely reaches or passes first base after hitting the ball into fair territory with neither the benefit of an error nor a fielder's choice.
+```{r}
+hits_summary = mlb_teams %>%
+  summarise(
+    mean = mean(hits, na.rm = TRUE),
+    median = median(hits, na.rm = TRUE),
+    min = min(hits, na.rm = TRUE),
+    max = max(hits, na.rm = TRUE))
+kable(hits_summary)
+```
+
+
+
+
+
+**Variable name** : ***singles***
+
+**Variable type** : numeric
+
+**Description**: How many total singles the observed team achieved during the regular season. A single is any time a batter safely reache first base after hitting the ball into fair territory with neither the benefit of an error nor a fielder's choice.
+```{r}
+singles_summary = mlb_teams %>%
+  summarise(
+    mean = mean(singles, na.rm = TRUE),
+    median = median(singles, na.rm = TRUE),
+    min = min(singles, na.rm = TRUE),
+    max = max(singles, na.rm = TRUE))
+kable(singles_summary)
+```
+
+
+
+
+
+**Variable name** : ***doubles***
+
+**Variable type** : numeric
+
+**Description**: How many total doubles the observed team achieved during the regular season. A single is any time a batter safely reaches second base after hitting the ball into fair territory with neither the benefit of an error nor a fielder's choice.
+```{r}
+doubles_summary = mlb_teams %>%
+  summarise(
+    mean = mean(doubles, na.rm = TRUE),
+    median = median(doubles, na.rm = TRUE),
+    min = min(doubles, na.rm = TRUE),
+    max = max(doubles, na.rm = TRUE))
+kable(doubles_summary)
+```
+
+
+
+
+
+**Variable name** : ***triples***
+
+**Variable type** : numeric
+
+**Description**: How many total triples the observed team achieved during the regular season. A single is any time a batter safely reaches triple base after hitting the ball into fair territory with neither the benefit of an error nor a fielder's choice.
+```{r}
+triples_summary = mlb_teams %>%
+  summarise(
+    mean = mean(triples, na.rm = TRUE),
+    median = median(triples, na.rm = TRUE),
+    min = min(triples, na.rm = TRUE),
+    max = max(triples, na.rm = TRUE))
+kable(triples_summary)
+```
+
+
+
+
+
+**Variable name** : ***homeruns***
+
+**Variable type** : numeric
+
+**Description**: How many total home runs the observed team achieved during the regular season. A single is any time a batter safely rounds all 3 bases and touches home plate after hitting the ball into fair territory with neither the benefit of an error nor a fielder's choice.
+```{r}
+hr_summary = mlb_teams %>%
+  summarise(
+    mean = mean(homeruns, na.rm = TRUE),
+    median = median(homeruns, na.rm = TRUE),
+    min = min(homeruns, na.rm = TRUE),
+    max = max(homeruns, na.rm = TRUE))
+kable(hr_summary)
+```
+
+
+
+
+
+**Variable name** : ***walks***
+
+**Variable type** : numeric
+
+**Description**: How many total walks the observed team achieved during the regular season. A walk is any time a pitcher throws a total of 4 balls out of the strike zone to a batter during an at bat that the batter does not swing at, make contact with, or put in play.
+```{r}
+walks_summary = mlb_teams %>%
+  summarise(
+    mean = mean(walks, na.rm = TRUE),
+    median = median(walks, na.rm = TRUE),
+    min = min(walks, na.rm = TRUE),
+    max = max(walks, na.rm = TRUE))
+kable(walks_summary)
+```
+
+
+
+
+
+**Variable name** : ***strikeouts_by_batters***
+
+**Variable type** : numeric
+
+**Description**: How many total times did the observed team's batters strike out during the regular season. A strike out is any time a batter records 3 strikes in an at bat. A strike is a pitch thrown over the plate and in between the batter's knees and mid chest, a pitch hit into foul territory, or swung at and missed. A batter cannot strike out on a foul ball unless it is caught by the catcher. 
+```{r}
+so_summary = mlb_teams %>%
+  summarise(
+    mean = mean(strikeouts_by_batters, na.rm = TRUE),
+    median = median(strikeouts_by_batters, na.rm = TRUE),
+    min = min(strikeouts_by_batters, na.rm = TRUE),
+    max = max(strikeouts_by_batters, na.rm = TRUE))
+kable(so_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***stolen_bases***
+
+**Variable type** : numeric
+
+**Description**: How many total times did the observed team's runners advance to the next base without being batted over by a ball in play and without the assistance of a throwing or fielding error by the defense. 
+
+```{r}
+sb_summary = mlb_teams %>%
+  summarise(
+    mean = mean(stolen_bases, na.rm = TRUE),
+    median = median(stolen_bases, na.rm = TRUE),
+    min = min(stolen_bases, na.rm = TRUE),
+    max = max(stolen_bases, na.rm = TRUE))
+kable(sb_summary)
+```
+
+
+
+
+
+**Variable name** : ***caught_stealing***
+
+**Variable type** : numeric
+
+**Description**: How many total times did the observed team's runners get thrown out by the defense while attempting to advance to the next base without being batted over by a ball in play and without the assistance of a throwing or fielding error by the defense.
+
+```{r}
+cs_summary = mlb_teams %>%
+  summarise(
+    mean = mean(caught_stealing, na.rm = TRUE),
+    median = median(caught_stealing, na.rm = TRUE),
+    min = min(caught_stealing, na.rm = TRUE),
+    max = max(caught_stealing, na.rm = TRUE))
+kable(cs_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***batters_hit_by_pitch***
+
+**Variable type** : numeric
+
+**Description**: How many total times did the observed team's batters get hit by a pitch. If a batter is standing in the batter's box and is hit by a pitched ball, he is awarded first base.
+
+```{r}
+hbp_summary = mlb_teams %>%
+  summarise(
+    mean = mean(batters_hit_by_pitch, na.rm = TRUE),
+    median = median(batters_hit_by_pitch, na.rm = TRUE),
+    min = min(batters_hit_by_pitch, na.rm = TRUE),
+    max = max(batters_hit_by_pitch, na.rm = TRUE))
+kable(hbp_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***sacrifice_flies***
+
+**Variable type** : numeric
+
+**Description**: How many total times did the observed team complete a sacrifice fly. A sacrifice fly occurs when a batter hits a fly ball that is caught for an out but allows runners to advance to the next base. Runners are allowed to advance if they start their sprint to the next base at the moment the batted ball is caught in the outfield. 
+
+```{r}
+sf_summary = mlb_teams %>%
+  summarise(
+    mean = mean(sacrifice_flies, na.rm = TRUE),
+    median = median(sacrifice_flies, na.rm = TRUE),
+    min = min(sacrifice_flies, na.rm = TRUE),
+    max = max(sacrifice_flies, na.rm = TRUE))
+kable(sf_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***on_base_per***
+
+**Variable type** : numeric
+
+**Description**: The percentage of at bats resulted in the observed team's batters reaching base safely in any capacity (hit (- home runs), walk, hit by pitch).
+
+```{r}
+obp_summary = mlb_teams %>%
+  summarise(
+    mean = mean(on_base_per, na.rm = TRUE),
+    median = median(on_base_per, na.rm = TRUE),
+    min = min(on_base_per, na.rm = TRUE),
+    max = max(on_base_per, na.rm = TRUE))
+kable(obp_summary)
+```
+
+
+
+
+
+**Variable name** : ***avg_obp***
+
+**Variable type** : numeric
+
+**Description**: The average on base percentage of every team across the entire MLB for a given year.
+
+```{r}
+avg_obp_table = mlb_teams %>%
+  summarise(
+    mean = mean(avg_obp, na.rm = TRUE),
+    median = median(avg_obp, na.rm = TRUE),
+    min = min(avg_obp, na.rm = TRUE),
+    max = max(avg_obp, na.rm = TRUE))
+kable(avg_obp_table)
+```
+
+
+
+
+
+
+**Variable name** : ***obp_status***
+
+**Variable type** : factor
+
+**Description**: Identifies whether the team's total on base percentage was "Over" or "Under" the MLB's total average on base percentage for that year. 
+```{R}
+obp_status_freq <- table(mlb_teams$obp_status)
+kable(obp_status_freq)
+```
+
+
+
+
+
+
+
+**Variable name** : ***slugging_perc***
+
+**Variable type** : numeric
+
+**Description**: Slugging percentage is a measure of a player's hitting productivity. It is calculated by dividing the total bases the player accumulated via hitting by their total at bats. Each type of hit is awarded a multiplier according to their strength. Singles get a 1x multiplier, doubles a 2x, triples a 3x, and home runs a 4x. This is the sum of the total bases of offense the player is resonsible for producing. This sum is then divided by the total number at bats they had and the result is their slugging percentage. 
+
+```{r}
+slg_summary = mlb_teams %>%
+  summarise(
+    mean = mean(slugging_perc, na.rm = TRUE),
+    median = median(slugging_perc, na.rm = TRUE),
+    min = min(slugging_perc, na.rm = TRUE),
+    max = max(slugging_perc, na.rm = TRUE))
+kable(slg_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***avg_slugging***
+
+**Variable type** : numeric
+
+**Description**: The average slugging percentage of every team across the entire MLB for a given year.
+
+```{r}
+avg_slug = mlb_teams %>%
+  summarise(
+    mean = mean(avg_slugging, na.rm = TRUE),
+    median = median(avg_slugging, na.rm = TRUE),
+    min = min(avg_slugging, na.rm = TRUE),
+    max = max(avg_slugging, na.rm = TRUE))
+kable(avg_slug)
+```
+
+
+
+
+
+
+**Variable name** : ***obp_status***
+
+**Variable type** : factor
+
+**Description**: Identifies whether the team's total slugging percentage was "Over" or "Under" the MLB's total average slugging percentage for that year. 
+```{R}
+slg_status_freq <- table(mlb_teams$slug_status)
+kable(slg_status_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***ops***
+
+**Variable type** : numeric
+
+**Description**: OPS stands for "on base plus slugging" and it calculated by adding together a batter's slugging and on base percentages. It provides a more holistic look at the offensive production of a player or team by including their ability to get on base in ways beyond getting a hit. A player's total bases via hitting are captures in the slugging percentage, their ability to work walks and get on base in unconventional ways is captured in their on base percentage. Thus this advanced statistic can provide a much deeper understanding of offensive production.
+
+```{r}
+ops_summary = mlb_teams %>%
+  summarise(
+    mean = mean(ops, na.rm = TRUE),
+    median = median(ops, na.rm = TRUE),
+    min = min(ops, na.rm = TRUE),
+    max = max(ops, na.rm = TRUE))
+kable(ops_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***avg_ops***
+
+**Variable type** : numeric
+
+**Description**: The average "on base plus slugging" score of every team across the entire MLB for a given year.
+
+```{r}
+avg_ops_table = mlb_teams %>%
+  summarise(
+    mean = mean(avg_ops, na.rm = TRUE),
+    median = median(avg_ops, na.rm = TRUE),
+    min = min(avg_ops, na.rm = TRUE),
+    max = max(avg_ops, na.rm = TRUE))
+kable(avg_ops_table)
+```
+
+
+
+
+
+
+**Variable name** : ***ops_status***
+
+**Variable type** : factor
+
+**Description**: Identifies whether the team's total "on base percentage was"on base plus slugging" score was "Over" or "Under" the MLB's total average OPS for that year. 
+```{R}
+ops_status_freq <- table(mlb_teams$ops_status)
+kable(ops_status_freq)
+```
+
+
+
+
+
+
+**Variable name** : ***batting_avg***
+
+**Variable type** : numeric
+
+**Description**: Represents how many hits a player or team achieved divided by their total number of at bats. This is a quintessential baseball offense statistic that represents how often a batter records a hit in their at bats. 
+
+```{r}
+ba_summary = mlb_teams %>%
+  summarise(
+    mean = mean(batting_avg, na.rm = TRUE),
+    median = median(batting_avg, na.rm = TRUE),
+    min = min(batting_avg, na.rm = TRUE),
+    max = max(batting_avg, na.rm = TRUE))
+kable(ba_summary)
+```
+
+
+
+
+
+
+**Variable name** : ***avg_ba***
+
+**Variable type** : numeric
+
+**Description**: The average of all observed team's batting averages in a given year. 
+
+```{r}
+avg_ba_table = mlb_teams %>%
+  summarise(
+    mean = mean(avg_ba, na.rm = TRUE),
+    median = median(avg_ba, na.rm = TRUE),
+    min = min(avg_ba, na.rm = TRUE),
+    max = max(avg_ba, na.rm = TRUE))
+kable(avg_ba_table)
+```
+
+
+
+
+
+
+
+**Variable name** : ***ba_status***
+
+**Variable type** : factor
+
+**Description**: Identifies whether the teams' batting average was "Over" or "Under" the MLB's total average batting average for that year. 
+```{R}
+ba_status_freq <- table(mlb_teams$ba_status)
+kable(ba_status_freq)
+```
